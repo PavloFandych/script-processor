@@ -1,6 +1,7 @@
 package org.example.scripting;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.example.model.VulnerabilityScript;
 
 import java.util.*;
@@ -8,7 +9,7 @@ import java.util.stream.Collectors;
 
 public class ExecutionPlan {
 
-    public List<Integer> getOrder(List<VulnerabilityScript> scripts) {
+    public Pair<List<Integer>, Map<Integer, VulnerabilityScript>> getPlan(List<VulnerabilityScript> scripts) {
         if (CollectionUtils.isEmpty(scripts)) {
             throw new IllegalStateException("Scripts list is null or empty");
         }
@@ -24,7 +25,7 @@ public class ExecutionPlan {
             }
         }
 
-        return result;
+        return Pair.of(Collections.unmodifiableList(result), Collections.unmodifiableMap(scriptMap));
     }
 
     private void run(VulnerabilityScript script,
@@ -56,7 +57,8 @@ public class ExecutionPlan {
     private Map<Integer, VulnerabilityScript> prepareScriptMap(List<VulnerabilityScript> scripts) {
         return scripts.stream()
                 .collect(
-                        Collectors.toMap(VulnerabilityScript::getScriptId, script -> script, (a, b) -> b)
+                        Collectors.toMap(VulnerabilityScript::getScriptId,
+                                script -> script, (a, b) -> b)
                 );
     }
 }
