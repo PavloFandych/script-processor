@@ -5,11 +5,14 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.example.model.VulnerabilityScript;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class ExecutionPlan {
+public class ExecutionPlan implements
+        Function<List<VulnerabilityScript>, Pair<List<Integer>, Map<Integer, VulnerabilityScript>>> {
 
-    public Pair<List<Integer>, Map<Integer, VulnerabilityScript>> getPlan(List<VulnerabilityScript> scripts) {
+    @Override
+    public Pair<List<Integer>, Map<Integer, VulnerabilityScript>> apply(List<VulnerabilityScript> scripts) {
         if (CollectionUtils.isEmpty(scripts)) {
             throw new IllegalStateException("Scripts list is null or empty");
         }

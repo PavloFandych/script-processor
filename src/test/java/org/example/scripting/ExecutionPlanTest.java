@@ -19,7 +19,7 @@ class ExecutionPlanTest {
         List<VulnerabilityScript> scripts = null;
 
         //when then
-        assertThatThrownBy(() -> EXECUTION_PLAN.getPlan(scripts)).isInstanceOf(IllegalStateException.class)
+        assertThatThrownBy(() -> EXECUTION_PLAN.apply(scripts)).isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Scripts list is null or empty");
     }
 
@@ -32,7 +32,7 @@ class ExecutionPlanTest {
         );
 
         // when then
-        assertThatThrownBy(() -> EXECUTION_PLAN.getPlan(scripts)).isInstanceOf(IllegalStateException.class)
+        assertThatThrownBy(() -> EXECUTION_PLAN.apply(scripts)).isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Missing dependency script with id: 3");
 
     }
@@ -46,7 +46,7 @@ class ExecutionPlanTest {
                     new VulnerabilityScript(2, null),
                     new VulnerabilityScript(3, null)
             );
-            EXECUTION_PLAN.getPlan(scripts);
+            EXECUTION_PLAN.apply(scripts);
         }).isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("dependency list is null");
     }
@@ -62,7 +62,7 @@ class ExecutionPlanTest {
         );
 
         //when
-        List<Integer> result = EXECUTION_PLAN.getPlan(scripts).getLeft();
+        List<Integer> result = EXECUTION_PLAN.apply(scripts).getLeft();
 
         //then
         assertThat(result).isNotNull().isNotEmpty();
@@ -78,7 +78,7 @@ class ExecutionPlanTest {
         );
 
         //when
-        List<Integer> result = EXECUTION_PLAN.getPlan(scripts).getLeft();
+        List<Integer> result = EXECUTION_PLAN.apply(scripts).getLeft();
 
         //then
         assertThat(result).isNotNull().isNotEmpty();
@@ -112,7 +112,7 @@ class ExecutionPlanTest {
                 try {
                     startGate.await();
                     System.out.println("scriptsOne start time: " + System.currentTimeMillis());
-                    return EXECUTION_PLAN.getPlan(scriptsOne).getLeft();
+                    return EXECUTION_PLAN.apply(scriptsOne).getLeft();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 } finally {
@@ -123,7 +123,7 @@ class ExecutionPlanTest {
                 try {
                     startGate.await();
                     System.out.println("scriptsTwo start time: " + System.currentTimeMillis());
-                    return EXECUTION_PLAN.getPlan(scriptsTwo).getLeft();
+                    return EXECUTION_PLAN.apply(scriptsTwo).getLeft();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 } finally {
@@ -153,7 +153,7 @@ class ExecutionPlanTest {
         );
 
         //when
-        List<Integer> result = EXECUTION_PLAN.getPlan(scripts).getLeft();
+        List<Integer> result = EXECUTION_PLAN.apply(scripts).getLeft();
 
         //then
         assertThat(result).isNotNull().isNotEmpty();
