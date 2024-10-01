@@ -1,17 +1,21 @@
 package org.example.scripting;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.example.model.VulnerabilityScript;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
+import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ExecutionPlanTest {
 
-    private static final ExecutionPlan EXECUTION_PLAN = new ExecutionPlan();
+    private static final Function<List<VulnerabilityScript>, Pair<List<Integer>,
+            Map<Integer, VulnerabilityScript>>> EXECUTION_PLAN = new ExecutionPlan();
 
     @Test
     void getPlanNullInputTest() {
