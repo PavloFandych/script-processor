@@ -55,10 +55,11 @@ class ExecutionPlanTest {
     void getPlanHappyPathTest() {
         //given
         List<VulnerabilityScript> scripts = List.of(
+                new VulnerabilityScript(3, List.of(4, 5)),
+                new VulnerabilityScript(2, List.of(3, 4)),
+                new VulnerabilityScript(5, List.of()),
                 new VulnerabilityScript(1, List.of(2, 3)),
-                new VulnerabilityScript(2, List.of(4)),
-                new VulnerabilityScript(3, List.of()),
-                new VulnerabilityScript(4, List.of())
+                new VulnerabilityScript(4, List.of(5))
         );
 
         //when
@@ -66,7 +67,7 @@ class ExecutionPlanTest {
 
         //then
         assertThat(result).isNotNull().isNotEmpty();
-        assertThat(result).containsExactlyElementsOf(List.of(4, 2, 3, 1));
+        assertThat(result).containsExactlyElementsOf(List.of(5, 4, 3, 2, 1));
     }
 
     @Test
@@ -93,9 +94,9 @@ class ExecutionPlanTest {
     void getPlanThreadSafetyTest() throws InterruptedException, ExecutionException {
         // given
         List<VulnerabilityScript> scriptsOne = List.of(
-                new VulnerabilityScript(1, List.of(2, 3)),
+                new VulnerabilityScript(1, List.of(3)),
                 new VulnerabilityScript(2, List.of(4)),
-                new VulnerabilityScript(3, List.of()),
+                new VulnerabilityScript(3, List.of(4)),
                 new VulnerabilityScript(4, List.of())
         );
         List<VulnerabilityScript> scriptsTwo = List.of(
@@ -136,13 +137,14 @@ class ExecutionPlanTest {
 
             // then
             assertThat(scriptsOneFuture.get()).isNotNull().isNotEmpty();
-            assertThat(scriptsOneFuture.get()).containsExactlyElementsOf(List.of(4, 2, 3, 1));
+            assertThat(scriptsOneFuture.get()).containsExactlyElementsOf(List.of(4, 3, 1, 2));
 
             assertThat(scriptsTwoFuture.get()).isNotNull().isNotEmpty();
             assertThat(scriptsTwoFuture.get()).containsExactlyElementsOf(List.of(2, 1));
         }
     }
 
+    // duplications
     @Test
     void getPlanWithDependencyDuplicationTest() {
         //given
@@ -158,5 +160,55 @@ class ExecutionPlanTest {
         //then
         assertThat(result).isNotNull().isNotEmpty();
         assertThat(result).containsExactlyElementsOf(List.of(3, 2, 1));
+    }
+
+    @Test
+    void getPlanWithDuplicatedVulnerabilityScriptTest() {
+        //given
+        List<VulnerabilityScript> scripts = List.of(
+                new VulnerabilityScript(1, List.of(2)),
+                new VulnerabilityScript(1, List.of(2)),
+                new VulnerabilityScript(2, List.of())
+        );
+
+        //when
+        List<Integer> result = EXECUTION_PLAN.apply(scripts).getLeft();
+
+        //then
+        assertThat(result).isNotNull().isNotEmpty();
+        assertThat(result).containsExactlyElementsOf(List.of(2, 1));
+    }
+
+    @Test
+    void getPlanWithoutDependenciesTest() {
+        //given
+        List<VulnerabilityScript> scripts = List.of(
+                new VulnerabilityScript(1, List.of()),
+                new VulnerabilityScript(2, List.of()),
+                new VulnerabilityScript(3, List.of())
+        );
+
+        //when
+        List<Integer> result = EXECUTION_PLAN.apply(scripts).getLeft();
+
+        //then
+        assertThat(result).isNotNull().isNotEmpty();
+        assertThat(result).containsExactlyElementsOf(List.of(1, 2, 3));
+    }
+
+    @Test
+    void getPlanWithSelfDependencyTest() {
+        //given
+        List<VulnerabilityScript> scripts = List.of(
+                new VulnerabilityScript(2, List.of(2)),
+                new VulnerabilityScript(1, List.of(1))
+        );
+
+        //when
+        List<Integer> result = EXECUTION_PLAN.apply(scripts).getLeft();
+
+        //then
+        assertThat(result).isNotNull().isNotEmpty();
+        assertThat(result).containsExactlyElementsOf(List.of(2, 1));
     }
 }
